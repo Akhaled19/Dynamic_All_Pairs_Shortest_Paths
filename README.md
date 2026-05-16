@@ -36,6 +36,14 @@ Problems encountered:
 The transportation systems are usually dynamic which means flight prices change, traffic changes 
 use of the path changes.
 
+As the it a real world systems where costs change continuously
+
+Airline Networks → Ticket prices change
+GPS Systems Traffic → conditions change
+Internet Routing → Network congestion changes
+Delivery Systems → Road availability changes
+Communication Networks → Link failures occur
+
 In such systems, recomputing shortest paths from scratch after every small update becomes 
 computationally expensive.
 
@@ -65,12 +73,39 @@ Update edge weight
 Run Floyd-Warshall again
 Recompute all shortest paths
 
-As the 
+The chosen algorithm is Dynamic All-Pairs Shortest Paths (Dynamic APSP):
+It handles the dynamic graph updates including:
+Edge insertion: Add a new connection between two vertices
+Edge deletion: Remove an existing connection
+Edge weight increase: Increasing the cost of an existing edge
+Edge weight decrease: Decreasing the cost of an existing edge
 
+The main objective of Dynamic APSP algorithm is to:
 
+Ensure that the shortest distance between all node pairs is correct
+Prevent complete recalculations of the solution each time there is a small alteration
+Reduce the time taken by updates on the graph
+Perform efficient shortest path queries anytime
 
+Why Dynamic APSP Was Chosen
+Some shortest path algorithms that were considered before choosing the final solution method are 
+listed below. Each of the algorithms mentioned is efficient in its own right; however, the 
+differences between them are significant in terms of their applicability within a dynamic all-pairs 
+system.
 
+Floyd-Warshall-Classic algorithm for all-pairs shortest paths in dense graphs
+Dijkstra’s Algorithm-Efficient single-source shortest path algorithm
+A*-Heuristic based algorithm for single source to destination path finding 
+LPA*(Lifelong Planning A*)-Incremental algorithm of A*
+D-Lite* –Real time replanning algorithm for robotics and navigation
+Johnson’s Algorithm-Efficient APSP algorithm for sparse graphs
 
+Restriction of Floyd–Warshall Algorithm
 
+Floyd–Warshall finds shortest path between every pair of vertices, but:
+Runs in O(V^3) time complexity
+Needs to be recalculated from scratch after modification of a graph
+Cannot efficiently handle any modification to a graph
+It is not suitable for the graphs which are subject to changes.
 
 
