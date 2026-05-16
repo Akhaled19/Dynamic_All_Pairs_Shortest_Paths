@@ -25,6 +25,7 @@ H(u, v) = The historical paths.
 
 
 import java.util.*;
+import java.io.*;
 
 public class DynamicAPSP {
     static final double INF = Double.MAX_VALUE / 2.0; // using inf/2 to avoid overflow 
@@ -423,6 +424,53 @@ public class DynamicAPSP {
             }
         }
         next[i][j] = -1;
+    }
+    public static double[][] readFlightsCSV(String filename) {
+        List<double[]> edges = new ArrayList<>();
+
+        try (Scanner scanner = new Scanner(new java.io.File(filename))) {
+            if (scanner.hasNextLine()) {
+                scanner.nextLine();
+            }
+
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+            
+                if (line.trim().isEmpty()) continue;
+                String[] parts = line.split(",");
+
+                int sourceId = Integer.parseInt(parts[1].trim());
+                int targetId = Integer.parseInt(parts[4].trim());
+                double wt = Double.parseDouble(parts[8].replace("$", "").trim());
+                edges.add(new double[]{sourceId, targetId, wt});
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error reading CSV: " + e.getMessage());
+        }
+
+        double[][] result = new double[edges.size()][3];
+
+        for (int i = 0; i < edges.size(); i++) {
+            result[i] = edges.get(i);
+        }
+
+        return result;
+    }
+
+    public static void main(String[] args) {
+        double[][] edges = readFlightsCSV("dynamic_apsp_flights.csv");
+
+        DynamicAPSP graph = new DynamicAPSP(18, edges);
+
+        System.out.println("BOS -> HND cheapest cost: $" + graph.query(0, 14));
+        System.out.println("Path: " + graph.getPath(0, 14));
+
+        graph.updateEdge(0, 2, 50);
+
+        System.out.println("After update:");
+        System.out.println("BOS -> LAX cheapest cost: $" + graph.query(0, 7));
+        System.out.println("Path: " + graph.getPath(0, 7));
     }
 
 
