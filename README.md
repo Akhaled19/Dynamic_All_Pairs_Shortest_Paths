@@ -215,9 +215,168 @@ shortest cost of flights between all pairs of airports. The Java constructor ini
 distance matrix using the weight matrix and relaxes all paths that pass through any intermediate 
 vertex.
 
+Complexity of Floyd-Warshall
+Time Complexity: O(V^3)
+Space Complexity: O(V^2)
+
+2. Dynamic APSP Update Algorithm
+
+The key achievement of this study is the development of the incremental updating algorithm. Rather 
+than calculating all shortest paths after each modification, the algorithm determines whether the 
+modified edge influences any of the cheapest paths already found.
+
+The updating method is:
+updateEdge(int u, int v, double newWeight)
+
+This method compares the old flight price with the new flight price.
+There are two cases:
+The edge price decreases.
+The edge price increases.
+These two cases are handled differently because a price decrease is easier than a price increase.
+
+Case 1: Edge Price Decrease
+When an edge becomes cheaper, there might be some routes that become more beneficial, but none of 
+the current routes become invalid. The algorithm examines every pair (i, j) to see whether 
+including this edge in a path reduces the total cost.
+
+The candidate path for an improved edge (x, y) is:
+i → ... → x → y → ... → j
+The candidate cost is:
+dist[i][x] + newWeight(x, y) + dist[y][j]
+
+In case the above candidate cost is less than the current dist[i][j], then the program updates the 
+distance matrix as well as the next hop matrix. This method is very efficient since the program 
+tests all possible paths which might profit from 
+the new edge.
+
+Complexity of Decrease - The decrease update checks every possible source and destination pair, so
+its time complexity is approximately: O(V^2)
+This is much faster than Floyd-Warshall’s O(V³) for large graphs.
 
 
+Case 2: Edge Price Increase
+When the cost of an edge increases, the problem becomes harder to solve since some of the cheapest 
+routes may have included that edge. If the edge cost increases, then the previously identified 
+cheapest routes may not necessarily be cheapest anymore.
 
+The algorithm works by following the steps below:
+In the first step, all the nodes (i,j) whose route passed through the old edge (x,y) can be 
+determined using the equation:
+dist[i][x] + oldWeight(x, y) + dist[y][j] == dist[i][j]
+
+Then, if that case is valid, the minimum cost path from node i to node j would be dependent on the 
+change in cost along the edge.
+Next, for each such pair, a new path will be found based on past path data.
+Finally, the priority queue approach will be used to process each such pair. The pair with the 
+minimum cost will be processed first.
+Fourth, the algorithm updates:
+
+dist[i][j]
+P[i][j]
+hist[i][j]
+next[i][j]
+This avoids blindly recomputing every path in the graph.
+
+Complexity of Increase Update
+The comments in the code state that the increase update uses a priority queue with the affected 
+pairs being processed, with the approximate computational cost of the loop being: O(V² log V)
+A complete theoretical version of a dynamic APSP may become more complicated, yet what matters for 
+this particular implementation is the fact that the update algorithm tries to restrict itself to 
+processing only affected path pairs.
+
+IMPLEMENTATION DETAIL:
+
+In Java using the class: DynamicAPSP
+The reading the CSV file: double[][] edges = readFlightsCSV("dynamic_apsp_flights.csv");
+Then it creates the graph: DynamicAPSP graph = new DynamicAPSP(18, edges);
+
+The constructor carries out three functions.
+Firstly, it initializes the graph with costs for direct flights.
+Secondly, it computes the initial cheapest costs between any two airports using the Floyd-Warshall 
+algorithm.
+Finally, it initializes additional data structures required for dynamic updating, such as local 
+shortest paths queues and past path costs.
+The query() function returns the cheapest current cost between two airports:
+graph.query(0, 14)
+The getPath() method returns the actual path:
+graph.getPath(0, 14)
+The updateEdge() method changes a flight price:
+graph.updateEdge(0, 2, 50);
+In the sample main method, the program first prints the cheapest cost and path from BOS to HND.Then 
+it updates the cost of the edge from vertex 0 to vertex 2, and prints the updated cheapest cost and 
+path from BOS to LAX. The uploaded code shows this testing structure in the main method.
+
+HOW THE SYSTEM WAS TESTED
+Testing for the program was done using the fictitious flight dataset. Testing mainly involved 
+verifying the program’s capacity to calculate the cheapest paths before and after an increase in 
+prices.
+
+The key aspects included the following:
+First, the loading of the CSV file into the program was successful.
+Second, there were 18 vertices created on the graph.
+Third, the initial costs for all pairs' cheapest path calculations were done using Floyd-Warshall.
+Fourth, the program was queried for a route such as: 
+BOS → HND
+The program printed both the cheapest cost and the path.
+Fifth, a flight price was changed using: 
+graph.updateEdge(0, 2, 50);
+This represents a real-time airfare update.
+Sixth, the program queried another route: 
+BOS → LAX
+The new lowest cost and route were output.
+
+Tests involved checking whether:
+The CSV file was read properly.
+The initial lowest routes were calculated properly.
+The program was able to get the new lowest cost in constant time.
+The program was capable of finding the exact route.
+The program was able to process a cost change.
+The route showed the impact of the modified cost.
+Other tests might involve modifying some prices manually in the main function and comparing the
+output with the new result obtained by running the Floyd-Warshall algorithm from scratch.
+
+RESULTS AND DISCUSSIONS
+The project demonstrates that there is an appreciable distinction between the static and dynamic 
+shortest path algorithms.
+
+It would be convenient to use the Floyd-Warshall algorithm as it returns a full list of cheapest 
+paths between all airport pairs. After the initialization of the table, the queries become faster 
+since the program just looks up values from the dist matrix.
+
+Nevertheless, this algorithm is rather costly to be applied repeatedly. In case of changing just 
+one airfare, it would be required to recalculate the whole graph and go through all vertex triples 
+again. Although it might not make any big difference for a small-sized graph, for a bigger one with 
+hundreds or thousands of airports it would be rather costly.
+
+The incremental update algorithm helps to solve this problem by splitting the updating process into 
+two types.
+
+When there is a reduction in price, the program verifies whether the new route created by the 
+cheaper route yields better paths. This is less complicated and involves verifying all the possible 
+combinations once.
+
+In case there is an increase in price, the program must be more cautious, as there might be changes 
+in the optimal routes. This is where the complexity arises in this assignment, where the program 
+verifies the new routes that were previously based on the cheaper routes.
+
+Generally, the program indicates that maintaining additional data structures can help speed up 
+future operations. In addition to maintaining minimum distance, it maintains other parameters like 
+path candidates, costs history, and next hop.
+
+COMPLEXITY ANALYSIS
+1. Initial graph setup
+
+2. Floyd-Warshall initialization
+
+3. Query cheapest cost
+
+4. Reconstruct path
+
+5. Edge decrease update
+
+6. Edge increase update
+
+7. Space complexity
 
 
 
